@@ -3,16 +3,11 @@
   "application": {
     "logo": "https://download.jelastic.com/public.php?service=files&t=1aeae1077d5d131cd815a598b0061f5d&download",
     "targetNodes": {
-      "nodeType": [
-        "apache2",
-        "apache2-ruby",
-        "nginxphp",
-        "nginx-ruby"
-      ]
+        "nodeGroup": ["cp"]
     },
     "description": {
       "short": "Add, remove FTP user (to Home Directory [webroot/]). User password reset.",
-      "en": "Add, remove and manage multiple FTP users' accounts, defining the separate server folders they should have the access to. Note that for this solution to be operable, it should be applied only over the already installed FTP add-on."
+      "en": "Add, remove and manage multiple FTP user accounts, defining the separate server folders they should have the access to. Note that for this solution to be operable, it should be applied only over the already installed FTP add-on."
     },
     "name": "FTP Users",
     "menu": [
