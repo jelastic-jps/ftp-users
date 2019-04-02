@@ -1,208 +1,132 @@
-{
-  "jpsType": "update",
-  "application": {
-    "logo": "https://download.jelastic.com/public.php?service=files&t=1aeae1077d5d131cd815a598b0061f5d&download",
-    "targetNodes": {
-      "nodeType": [
-        "apache2",
-        "apache2-ruby",
-        "nginxphp",
-        "nginx-ruby"
-      ]
-    },
-    "description": {
-      "short": "Add, remove FTP user (to Home Directory [webroot/]). User password reset.",
-      "en": "Add, remove and manage multiple FTP users' accounts, defining the separate server folders they should have the access to. Note that for this solution to be operable, it should be applied only over the already installed FTP add-on."
-    },
-    "name": "FTP Users",
-    "menu": [
-      {
-        "confirmText": "You are going to add a new FTP user. Continue?",
-        "settings": "addSettings",
-        "loadingText": "Performing new user addition...",
-        "caption": "Add new FTP user",
-        "procedure": "addUser",
-        "successText": "New user was added."
-      },
-      {
-        "confirmText": "You are going to edit FTP directory. Continue?",
-        "settings": "editSettings",
-        "loadingText": "Performing FTP directory editing...",
-        "caption": "Edit user FTP directory",
-        "procedure": "editUser",
-        "successText": "The FTP directory was changed."
-      },
-      {
-        "confirmText": "You are going to delete the user. Would you like to continue?",
-        "settings": "delSettings",
-        "loadingText": "Performing user deletion...",
-        "caption": "Delete the FTP user",
-        "procedure": "delUser",
-        "successText": "The user has been deleted."
-      },
-      {
-        "confirmText": "You are going to change the FTP user account password. Would you like to continue?",
-        "settings": "resetSettings",
-        "loadingText": "Performing the user password changing...",
-        "caption": "Change the FTP user password",
-        "procedure": "resetUser",
-        "successText": "The user password was changed."
-      }
-    ],
-    "settings": {
-      "addSettings": {
-        "fields": [
-          {
-            "regexText": "Incorrect Username. Alphanumeric input only.",
-            "regex": "^[a-z][-a-z0-9]*$",
-            "name": "username",
-            "caption": "Username:",
-            "type": "string",
-            "required": true
-          },
-          {
-            "name": "password",
-            "inputType": "password",
-            "caption": "Password:",
-            "type": "string",
-            "required": true
-          },
-          {
-            "default": "/",
-            "regexText": "Incorrect Home Directory",
-            "regex": "^(/)?([a-zA-Z\\._\\-0-9])+?(/)?$",
-            "name": "homepath",
-            "caption": "Home Directory [webroot/]:",
-            "type": "string",
-            "required": true
-          }
-        ]
-      },
-      "delSettings": {
-        "fields": [
-          {
-            "regexText": "Incorrect Username. Alphanumeric input only.",
-            "regex": "^[a-z][-a-z0-9]*$",
-            "name": "username",
-            "caption": "Username:",
-            "type": "string",
-            "required": true
-          },
-          {
-            "name": "removedata",
-            "value": false,
-            "caption": "Delete the data",
-            "type": "checkbox",
-            "required": true,
-            "checked": false
-          }
-        ]
-      },
-      "editSettings": {
-        "fields": [
-          {
-            "regexText": "Incorrect Username. Alphanumeric input only.",
-            "regex": "^[a-z][-a-z0-9]*$",
-            "name": "username",
-            "caption": "Username:",
-            "type": "string",
-            "required": true
-          },
-          {
-            "default": "/",
-            "regexText": "Incorrect Home Directory",
-            "regex": "^(/)?([a-zA-Z\\._\\-0-9])+?(/)?$",
-            "name": "homepath",
-            "caption": "Home Directory [webroot/]:",
-            "type": "string",
-            "required": true
-          }
-        ]
-      },
-      "resetSettings": {
-        "fields": [
-          {
-            "regexText": "Incorrect Username. Alphanumeric input only.",
-            "regex": "^[a-z][-a-z0-9]*$",
-            "name": "username",
-            "caption": "Username:",
-            "type": "string",
-            "required": true
-          },
-          {
-            "name": "password",
-            "inputType": "password",
-            "caption": "New password:",
-            "type": "string",
-            "required": true
-          }
-        ]
-      }
-    },
-    "categories": [
-      "apps/dev-and-admin-tools",
-      "apps/others"
-    ],
-    "success": "The operation finished successfully",
-    "homepage": "https://docs.jelastic.com/ftp-ftps-support",
-    "procedures": [
-      {
-        "id": "addUser",
-        "onCall": [
-          {
-            "executeShellCommands": {
-              "commands": [
-                "id ${this.username} > /dev/null 2>&1  ||  { /usr/sbin/adduser -o --home /var/ftp/webroot/${this.homepath} --shell /bin/false --uid 700 ${this.username}; echo '${this.username}:${this.password}' | chpasswd; }"
-              ],
-              "nodeType": "${targetNodes[0].nodeType}",
-              "user": "root"
-            }
-          }
-        ]
-      },
-      {
-        "id": "editUser",
-        "onCall": [
-          {
-            "executeShellCommands": {
-              "commands": [
-                "usermod -d /var/ftp/webroot/${this.homepath} ${this.username} > /dev/null 2>&1; mkdir -p /var/ftp/webroot/${this.homepath}; chown ${this.username} /var/ftp/webroot/${this.homepath} 2>&1 > /dev/null"
-              ],
-              "nodeType": "${targetNodes[0].nodeType}",
-              "user": "root"
-            }
-          }
-        ]
-      },
-      {
-        "id": "delUser",
-        "onCall": [
-          {
-            "executeShellCommands": {
-              "commands": [
-                "if [ '${this.removedata}' == 'true' ]; then userdel -fr ${this.username} > /dev/null 2>&1; else userdel -f ${this.username} > /dev/null 2>&1; fi"
-              ],
-              "nodeType": "${targetNodes[0].nodeType}",
-              "user": "root"
-            }
-          }
-        ]
-      },
-      {
-        "id": "resetUser",
-        "onCall": [
-          {
-            "executeShellCommands": {
-              "commands": [
-                "echo '${this.username}:${this.password}' | chpasswd"
-              ],
-              "nodeType": "${targetNodes[0].nodeType}",
-              "user": "root"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  "jpsVersion": "0.4"
-}
+type: update
+logo: https://download.jelastic.com/public.php?service=files&t=1aeae1077d5d131cd815a598b0061f5d&download
+targetNodes:
+  nodeType:
+  - apache
+  - apache2
+  - apache2-ruby
+  - nginxphp
+  - nginx-ruby
+description:
+  short: Add, remove FTP user (to Home Directory [webroot/]). User password reset.
+  en: Add, remove and manage multiple FTP users' accounts, defining the separate server
+    folders they should have the access to. Note that for this solution to be operable,
+    it should be applied only over the already installed FTP add-on.
+name: FTP Users
+menu:
+- confirmText: You are going to add a new FTP user. Continue?
+  settings: addSettings
+  loadingText: Performing new user addition...
+  caption: Add new FTP user
+  action: addUser
+  successText: New user was added.
+- confirmText: You are going to edit FTP directory. Continue?
+  settings: editSettings
+  loadingText: Performing FTP directory editing...
+  caption: Edit user FTP directory
+  action: editUser
+  successText: The FTP directory was changed.
+- confirmText: You are going to delete the user. Would you like to continue?
+  settings: delSettings
+  loadingText: Performing user deletion...
+  caption: Delete the FTP user
+  action: delUser
+  successText: The user has been deleted.
+- confirmText: You are going to change the FTP user account password. Would you like
+    to continue?
+  settings: resetSettings
+  loadingText: Performing the user password changing...
+  caption: Change the FTP user password
+  action: resetUser
+  successText: The user password was changed.
+settings:
+  addSettings:
+    fields:
+    - regexText: Incorrect Username. Alphanumeric input only.
+      regex: "^[a-z][-a-z0-9]*$"
+      name: username
+      caption: 'Username:'
+      type: string
+      required: true
+    - name: password
+      inputType: password
+      caption: 'Password:'
+      type: string
+      required: true
+    - default: "/"
+      regexText: Incorrect Home Directory
+      regex: "^(/)?([a-zA-Z\\._\\-0-9])+?(/)?$"
+      name: homepath
+      caption: 'Home Directory [webroot/]:'
+      type: string
+      required: true
+  delSettings:
+    fields:
+    - regexText: Incorrect Username. Alphanumeric input only.
+      regex: "^[a-z][-a-z0-9]*$"
+      name: username
+      caption: 'Username:'
+      type: string
+      required: true
+    - name: removedata
+      value: false
+      caption: Delete the data
+      type: checkbox
+      required: true
+      checked: false
+  editSettings:
+    fields:
+    - regexText: Incorrect Username. Alphanumeric input only.
+      regex: "^[a-z][-a-z0-9]*$"
+      name: username
+      caption: 'Username:'
+      type: string
+      required: true
+    - default: "/"
+      regexText: Incorrect Home Directory
+      regex: "^(/)?([a-zA-Z\\._\\-0-9])+?(/)?$"
+      name: homepath
+      caption: 'Home Directory [webroot/]:'
+      type: string
+      required: true
+  resetSettings:
+    fields:
+    - regexText: Incorrect Username. Alphanumeric input only.
+      regex: "^[a-z][-a-z0-9]*$"
+      name: username
+      caption: 'Username:'
+      type: string
+      required: true
+    - name: password
+      inputType: password
+      caption: 'New password:'
+      type: string
+      required: true
+categories:
+- apps/dev-and-admin-tools
+- apps/others
+success: The operation finished successfully
+homepage: https://docs.jelastic.com/ftp-ftps-support
+actions:
+  addUser:
+    cmd [${targetNodes[0].nodeType}]:
+    - id ${this.username} > /dev/null 2>&1  ||  { /usr/sbin/adduser -o --home /var/ftp/webroot/${this.homepath}
+      --shell /bin/false --uid 700 ${this.username}; echo '${this.username}:${this.password}'
+      | chpasswd; }
+    user: root
+  editUser:
+    cmd [${targetNodes[0].nodeType}]:
+    - usermod -d /var/ftp/webroot/${this.homepath} ${this.username} > /dev/null 2>&1;
+      mkdir -p /var/ftp/webroot/${this.homepath}; chown ${this.username} /var/ftp/webroot/${this.homepath}
+      2>&1 > /dev/null
+    user: root
+  delUser:
+    cmd [${targetNodes[0].nodeType}]:
+    - if [ '${this.removedata}' == 'true' ]; then userdel -fr ${this.username} > /dev/null
+      2>&1; else userdel -f ${this.username} > /dev/null 2>&1; fi
+    user: root
+  resetUser:
+    cmd [${targetNodes[0].nodeType}]:
+    - echo '${this.username}:${this.password}' | chpasswd
+    user: root
+version: '0.4'
