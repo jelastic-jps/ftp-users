@@ -7,6 +7,7 @@ targetNodes:
   - apache2-ruby
   - nginxphp
   - nginx-ruby
+  - storage
 description:
   short: Add, remove FTP user (to Home Directory [webroot/]). User password reset.
   en: Add, remove and manage multiple FTP users' accounts, defining the separate server
@@ -110,14 +111,14 @@ homepage: https://docs.jelastic.com/ftp-ftps-support
 actions:
   addUser:
     cmd [${targetNodes[0].nodeType}]:
-    - id ${this.username} > /dev/null 2>&1  ||  { /usr/sbin/adduser -o --home /var/ftp/webroot/${this.homepath}
-      --shell /bin/false --uid 700 ${this.username}; echo '${this.username}:${this.password}'
-      | chpasswd; }
+    - if [ "${targetNodes.nodeType}" == "storage" ]; then defaultPath="/var/ftp/"; else defaultPath="/var/ftp/webroot"; fi
+    - id ${this.username} > /dev/null 2>&1  ||  { /usr/sbin/adduser -o --home ${defaultPath}/${this.homepath} --shell /bin/false --uid 700 ${this.username}; echo '${this.username}:${this.password}' | chpasswd; }
     user: root
   editUser:
     cmd [${targetNodes[0].nodeType}]:
-    - usermod -d /var/ftp/webroot/${this.homepath} ${this.username} > /dev/null 2>&1;
-      mkdir -p /var/ftp/webroot/${this.homepath}; chown ${this.username} /var/ftp/webroot/${this.homepath}
+    - if [ "${targetNodes.nodeType}" == "storage" ]; then defaultPath="/var/ftp/"; else defaultPath="/var/ftp/webroot"; fi
+    - usermod -d ${defaultPath}/${this.homepath} ${this.username} > /dev/null 2>&1;
+      mkdir -p ${defaultPath}${this.homepath}; chown ${this.username} /var/ftp/webroot/${this.homepath}
       2>&1 > /dev/null
     user: root
   delUser:
