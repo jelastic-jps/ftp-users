@@ -49,11 +49,13 @@ settings:
       caption: 'Username:'
       type: string
       required: true
+      initialValue: ''
     - name: password
       inputType: password
       caption: 'Password:'
       type: string
       required: true
+      initialValue: ''
     - default: "/"
       regexText: Incorrect Home Directory
       regex: "^(/)?([a-zA-Z\\._\\-0-9])+?(/)?$"
@@ -69,11 +71,11 @@ settings:
       caption: 'Username:'
       type: string
       required: true
+      initialValue: ''
     - name: removedata
       value: false
       caption: Delete the data
       type: checkbox
-      required: true
       checked: false
   editSettings:
     fields:
@@ -83,6 +85,7 @@ settings:
       caption: 'Username:'
       type: string
       required: true
+      initialValue: ''
     - default: "/"
       regexText: Incorrect Home Directory
       regex: "^(/)?([a-zA-Z\\._\\-0-9])+?(/)?$"
@@ -98,6 +101,7 @@ settings:
       caption: 'Username:'
       type: string
       required: true
+      initialValue: ''
     - name: password
       inputType: password
       caption: 'New password:'
